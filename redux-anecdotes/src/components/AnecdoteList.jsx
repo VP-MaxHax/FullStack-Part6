@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux'
-import { vote } from '../reducers/anecdoteReducer'
-import { clearNotification, setNotification } from '../reducers/notificationReducer'
+import { voteAnecdote } from '../reducers/anecdoteReducer'
+import { notify } from '../reducers/notificationReducer'
+import PropTypes from 'prop-types';
 
 const style = {
   border: 'solid',
@@ -21,15 +22,24 @@ const Anecdote = ({ anecdote, handleClick }) => {
     </div>
   )
 }
+
+Anecdote.propTypes = {
+  anecdote: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    content: PropTypes.string.isRequired,
+    votes: PropTypes.number.isRequired
+  }).isRequired,
+  handleClick: PropTypes.func.isRequired
+}
     
 const AnecdoteList = () => {
   const anecdotes = useSelector(state => {
     const filter = state.filter.toLowerCase()
-    console.log(filter)
     return state.anecdotes.filter(anecdote => 
       anecdote.content.toLowerCase().includes(filter)
     )
   })
+
   const dispatch = useDispatch()
 
   const sortedAnecdotes = [...anecdotes].sort((a, b) => b.votes - a.votes)
@@ -41,11 +51,8 @@ const AnecdoteList = () => {
           key={anecdote.id}
           anecdote={anecdote}
           handleClick={() => {
-            dispatch(vote(anecdote))
-            dispatch(setNotification(`you voted '${anecdote.content}'`))
-            setTimeout(() => {
-              dispatch(clearNotification())
-            }, 5000)
+            dispatch(voteAnecdote(anecdote))
+            dispatch(notify(`you voted '${anecdote.content}'`, 10))
           }
           }
         />
